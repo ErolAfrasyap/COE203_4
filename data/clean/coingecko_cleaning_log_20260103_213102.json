@@ -1,0 +1,31 @@
+{
+  "input_rows": 100,
+  "dropped": 100,
+  "output_rows": 0,
+  "steps": [
+    {
+      "name": "strip_whitespace",
+      "description": "Boşluk temizliği, boş stringleri eleme"
+    },
+    {
+      "name": "normalize_symbol",
+      "description": "Symbol uppercase + alfanumerik hale getirme"
+    },
+    {
+      "name": "parse_money",
+      "description": "Para formatlarını float'a çevirme ($,€,₺, virgül vb. temizleme)"
+    },
+    {
+      "name": "parse_percent",
+      "description": "% formatlarını float'a çevirme"
+    },
+    {
+      "name": "drop_invalid",
+      "description": "Symbol/fiyat yoksa satırı atma"
+    },
+    {
+      "name": "deduplicate",
+      "description": "Symbol bazında tekilleştirme"
+    }
+  ]
+}
