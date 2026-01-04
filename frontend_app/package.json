@@ -9,9 +9,11 @@
     "@testing-library/user-event": "^13.5.0",
     "apexcharts": "^5.3.6",
     "axios": "^1.13.2",
+    "plotly.js": "^3.3.1",
     "react": "^19.2.3",
     "react-apexcharts": "^1.9.0",
     "react-dom": "^19.2.3",
+    "react-plotly.js": "^2.6.0",
     "react-scripts": "5.0.1",
     "recharts": "^3.6.0",
     "web-vitals": "^2.1.4"
