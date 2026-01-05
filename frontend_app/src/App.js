@@ -227,7 +227,7 @@ export default function App() {
   return (
     <div className="nexus-container">
       <header className="nexus-header">
-        <h2>NEXUS_TERMINAL_PRO_V1</h2>
+        <h2>CRYPTO ANALYTICS SYSTEM</h2>
         <div className="status-badge">SYSTEM: ONLINE</div>
       </header>
 
