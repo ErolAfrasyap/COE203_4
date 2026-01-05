@@ -32,7 +32,6 @@ export default function App() {
 
   const endpoint = source === "scraped" ? "/api/scraped-data" : "/api/live-data";
 
-  // --- DOWNLOAD / EXPORT FONKSİYONLARI ---
   const downloadFile = (content, filename, mime) => {
     const blob = new Blob([content], { type: mime });
     const url = URL.createObjectURL(blob);
@@ -63,7 +62,6 @@ export default function App() {
     downloadFile(JSON.stringify(report, null, 2), "analysis_report.json", "application/json");
   };
 
-  // --- CANLI VERİ ÇEKME ---
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -101,7 +99,6 @@ export default function App() {
     return () => clearInterval(id);
   }, [autoRefresh, endpoint]);
 
-  // --- FİLTRELEME ---
   const filteredSorted = useMemo(() => {
     const q = searchTerm.trim().toUpperCase();
     let arr = tokens;
@@ -132,7 +129,6 @@ export default function App() {
     return filteredSorted.filter((t) => t.is_anomaly === true);
   }, [filteredSorted, onlyAnomalies]);
 
-  // --- GRAFİK VERİSİ (DÜZELTİLEN KISIM) ---
   const fetchHistory = async (symbol, interval) => {
     try {
       setHistoryLoading(true);
@@ -143,12 +139,10 @@ export default function App() {
       const rows = Array.isArray(res.data) ? res.data : [];
       
       const data = rows.map((r) => {
-          // EĞER BACKEND HAZIR VERİ (x, y) GÖNDERİRSE DİREKT KULLAN:
           if (r.x && r.y) {
               return { x: new Date(r.x), y: r.y };
           }
           
-          // AKSİ HALDE HAM VERİYİ İŞLE:
           const ts = Number(r.time ?? r.openTime ?? r.t ?? r[0]);
           const o = Number(r.open ?? r.o ?? r[1]);
           const h = Number(r.high ?? r.h ?? r[2]);
@@ -173,7 +167,6 @@ export default function App() {
     fetchHistory(selected.symbol, timeframe);
   }, [selected, timeframe]);
 
-  // --- GRAFİK AYARLARI ---
   const chartOptions = useMemo(() => ({
     chart: { type: "candlestick", height: 350, toolbar: { show: true }, background: 'transparent' },
     theme: { mode: 'dark' },
@@ -182,7 +175,6 @@ export default function App() {
     grid: { borderColor: '#333' }
   }), []);
 
-  // --- RAPOR ---
   const openReport = async () => {
     setReportOpen(true);
     if (report) return;
@@ -234,13 +226,11 @@ export default function App() {
 
   return (
     <div className="nexus-container">
-      {/* HEADER */}
       <header className="nexus-header">
         <h2>NEXUS_TERMINAL_PRO_V1</h2>
         <div className="status-badge">SYSTEM: ONLINE</div>
       </header>
 
-      {/* CONTROL PANEL */}
       <div className="control-panel">
         <div className="control-group">
           <select className="nexus-select" value={source} onChange={(e) => setSource(e.target.value)}>
@@ -290,7 +280,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* DATA GRID */}
       <div className="data-display-area">
         <div className="meta-info">
           <span>ENDPOINT: {endpoint}</span>
@@ -330,7 +319,6 @@ export default function App() {
         )}
       </div>
 
-      {/* MODAL: DETAY VE GRAFİK */}
       {selected && (
         <div className="nexus-modal-overlay" onClick={() => setSelected(null)}>
           <div className="nexus-modal" onClick={(e) => e.stopPropagation()}>
@@ -374,7 +362,6 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL: RAPOR */}
       {reportOpen && (
         <div className="nexus-modal-overlay" onClick={() => setReportOpen(false)}>
           <div className="nexus-modal large" onClick={(e) => e.stopPropagation()}>

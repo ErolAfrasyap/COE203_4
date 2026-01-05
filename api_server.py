@@ -70,5 +70,5 @@ def get_token_history(symbol):
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    print(">>> PYTHON SERVER RUNNING (Port: 3000)...")
-    app.run(debug=True, port=3000)
+    print(">>> PYTHON SERVER RUNNING (Port: 5000)...")
+    app.run(debug=True, port=5000)

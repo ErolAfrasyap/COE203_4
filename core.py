@@ -1,27 +1,32 @@
-# File Name: core.py
+"""
+Core processing module for the Crypto Analytics System.
+Contains data structures, mathematical engines, scraping logic,
+and analysis tools.
+"""
 import re
 import io
 import base64
-import requests
-import pandas as pd
-import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import seaborn as sns
-from bs4 import BeautifulSoup
-from typing import List, Dict, Any
 import time
 import random
+from typing import List, Dict, Any
+import requests
+import pandas as pd
+from bs4 import BeautifulSoup
+import matplotlib
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+matplotlib.use('Agg')
 
 class TokenData:
     """
     Data carrier class.
-    A class-based structure is used instead of plain dictionaries.
-    This improves scalability and keeps the project structure more professional.
     """
-    def __init__(self, id, symbol, name, current_price, price_change_percentage_24h, market_cap_rank):
-        self.id = id
+    # pylint: disable=too-many-instance-attributes, too-many-arguments
+    # pylint: disable=too-many-positional-arguments
+    def __init__(self, token_id, symbol, name, current_price,
+                 price_change_percentage_24h, market_cap_rank):
+        self.id = token_id  # pylint: disable=invalid-name
         self.symbol = symbol
         self.name = name
         self.current_price = current_price
@@ -45,9 +50,7 @@ class TokenData:
 
 class MathEngine:
     """
-    A manual statistics engine that implements calculations using loops
-    instead of relying entirely on high-level library shortcuts.
-    This demonstrates algorithmic thinking.
+    A manual statistics engine.
     """
     @staticmethod
     def calculate_mean(values: List[float]) -> float:
@@ -76,7 +79,7 @@ class MathEngine:
 
     @staticmethod
     def calculate_z_score(value: float, mean: float, std_dev: float) -> float:
-        """Z-score calculation (critical for anomaly detection)."""
+        """Z-score calculation."""
         if std_dev == 0:
             return 0.0
         return (value - mean) / std_dev
@@ -84,7 +87,6 @@ class MathEngine:
 class PredictionEngine:
     """
     A simple price prediction engine using linear regression.
-    Uses manual least-squares math instead of sklearn.
     """
     @staticmethod
     def linear_regression_predict(prices: List[float]) -> float:
@@ -95,17 +97,18 @@ class PredictionEngine:
             return 0.0
 
         n = len(prices)
-        x = list(range(n))
-        y = prices
+        x_vals = list(range(n))
+        y_vals = prices
 
-        sum_x = sum(x)
-        sum_y = sum(y)
-        sum_xy = sum([xi * yi for xi, yi in zip(x, y)])
-        sum_xx = sum([xi ** 2 for xi in x])
+        sum_x = sum(x_vals)
+        sum_y = sum(y_vals)
+        # pylint: disable=consider-using-generator
+        sum_xy = sum([xi * yi for xi, yi in zip(x_vals, y_vals)])
+        sum_xx = sum([xi ** 2 for xi in x_vals])
 
         denominator = (n * sum_xx - sum_x ** 2)
         if denominator == 0:
-            return y[-1]
+            return y_vals[-1]
 
         m = (n * sum_xy - sum_x * sum_y) / denominator
         b = (sum_y - m * sum_x) / n
@@ -115,11 +118,11 @@ class PredictionEngine:
 
 class SentimentEngine:
     """
-    A simple rule-based sentiment engine that estimates market sentiment
-    based on 24h change values.
+    A simple rule-based sentiment engine.
     """
     @staticmethod
     def analyze_market_sentiment(tokens: List[TokenData]) -> Dict[str, Any]:
+        """Analyzes market sentiment."""
         bullish_count = 0
         bearish_count = 0
         total_change = 0.0
@@ -150,17 +153,17 @@ class SentimentEngine:
         }
 
 class MessyWebScraper:
+    """Scrapes crypto data from web sources."""
     def __init__(self):
         self.url = "https://coinranking.com"
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/91.0.4472.124 Safari/537.36"
         }
 
     def _advanced_clean_currency(self, raw_value: str) -> float:
-        """
-        Regex-based cleaning for messy numeric strings.
-        Example: "$ 3.2 billion" -> 3200000000.0
-        """
+        """Regex-based cleaning for messy numeric strings."""
         if not raw_value:
             return 0.0
 
@@ -188,6 +191,7 @@ class MessyWebScraper:
         return 0.0
 
     def scrape_data(self) -> List[TokenData]:
+        """Main scraping method."""
         print(">>> Web Scraping (Coinranking) started...")
         try:
             response = requests.get(self.url, headers=self.headers, timeout=15)
@@ -203,11 +207,15 @@ class MessyWebScraper:
                     change_raw = row.find("div", class_="change").text
 
                     clean_price = self._advanced_clean_currency(price_raw)
-                    clean_change = self._advanced_clean_currency(change_raw.replace("%", ""))
-                    clean_change = clean_change if isinstance(clean_change, (int, float)) else 0.0
+                    clean_change = self._advanced_clean_currency(
+                        change_raw.replace("%", "")
+                    )
+                    clean_change = clean_change if isinstance(
+                        clean_change, (int, float)
+                    ) else 0.0
 
                     t = TokenData(
-                        id=symbol,
+                        token_id=symbol,
                         symbol=symbol,
                         name=name,
                         current_price=clean_price,
@@ -215,27 +223,31 @@ class MessyWebScraper:
                         market_cap_rank=index + 1
                     )
                     tokens.append(t)
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     continue
 
             if not tokens:
+                # pylint: disable=broad-exception-raised
                 raise Exception("Scraping returned empty data.")
             return tokens
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"!!! Scraping error: {e}")
             return self._generate_fallback_data()
 
     def _generate_fallback_data(self):
-        """Generates 50 fallback token rows for emergency cases."""
+        """Generates fallback token rows."""
         data = []
         leaders = [
-            ("BTC", "Bitcoin", 94500.0), ("ETH", "Ethereum", 3100.0), ("BNB", "Binance Coin", 620.0),
-            ("SOL", "Solana", 145.0), ("XRP", "Ripple", 2.40), ("ADA", "Cardano", 0.75),
-            ("DOGE", "Dogecoin", 0.18), ("AVAX", "Avalanche", 45.0), ("DOT", "Polkadot", 8.5),
-            ("TRX", "Tron", 0.14), ("LINK", "Chainlink", 18.0), ("MATIC", "Polygon", 0.95),
-            ("SHIB", "Shiba Inu", 0.000025), ("LTC", "Litecoin", 88.0), ("UNI", "Uniswap", 11.5),
-            ("ATOM", "Cosmos", 10.0), ("XLM", "Stellar", 0.35), ("ETC", "Ethereum Classic", 25.0),
+            ("BTC", "Bitcoin", 94500.0), ("ETH", "Ethereum", 3100.0),
+            ("BNB", "Binance Coin", 620.0), ("SOL", "Solana", 145.0),
+            ("XRP", "Ripple", 2.40), ("ADA", "Cardano", 0.75),
+            ("DOGE", "Dogecoin", 0.18), ("AVAX", "Avalanche", 45.0),
+            ("DOT", "Polkadot", 8.5), ("TRX", "Tron", 0.14),
+            ("LINK", "Chainlink", 18.0), ("MATIC", "Polygon", 0.95),
+            ("SHIB", "Shiba Inu", 0.000025), ("LTC", "Litecoin", 88.0),
+            ("UNI", "Uniswap", 11.5), ("ATOM", "Cosmos", 10.0),
+            ("XLM", "Stellar", 0.35), ("ETC", "Ethereum Classic", 25.0),
             ("XMR", "Monero", 150.0), ("FIL", "Filecoin", 6.0)
         ]
 
@@ -254,6 +266,7 @@ class MessyWebScraper:
         return data
 
 class BinanceTokensFetcher:
+    """Fetches data from Binance API."""
     def __init__(self, limit: int = 50):
         self.limit = limit
         self.base_url = "https://api.binance.com/api/v3"
@@ -263,33 +276,38 @@ class BinanceTokensFetcher:
         self._max_retry: int = 3
 
     def fetch_data(self) -> List[TokenData]:
+        """Main fetch method."""
         try:
             now_time = time.time()
-            if self._last_good_tokens and (now_time - self._last_fetch_time) < self._cache_ttl_seconds:
+            if self._last_good_tokens and \
+               (now_time - self._last_fetch_time) < self._cache_ttl_seconds:
                 return self._last_good_tokens
 
             last_exc = None
-            r = None
+            r_data = None
             for attempt in range(self._max_retry):
                 try:
                     resp = requests.get(f"{self.base_url}/ticker/24hr", timeout=5)
                     if hasattr(resp, "status_code") and resp.status_code != 200:
+                        # pylint: disable=broad-exception-raised
                         raise Exception(f"HTTP Error: {resp.status_code}")
 
-                    r = resp.json()
-                    if isinstance(r, dict) and "code" in r:
+                    r_data = resp.json()
+                    if isinstance(r_data, dict) and "code" in r_data:
+                        # pylint: disable=broad-exception-raised
                         raise Exception("Binance API Error")
 
                     last_exc = None
                     break
-                except Exception as e:
+                except Exception as e:  # pylint: disable=broad-exception-caught
                     last_exc = e
                     time.sleep(0.08 * (attempt + 1))
 
             if last_exc is not None:
+                # pylint: disable=raising-bad-type
                 raise last_exc
 
-            usdt_pairs = [x for x in r if x["symbol"].endswith("USDT")]
+            usdt_pairs = [x for x in r_data if x["symbol"].endswith("USDT")]
             usdt_pairs.sort(key=lambda x: float(x.get("quoteVolume", 0)), reverse=True)
 
             tokens = []
@@ -299,7 +317,7 @@ class BinanceTokensFetcher:
                     pct_val = float(pct_str) if pct_str not in [None, "", "nan", "NaN"] else 0.0
 
                     t = TokenData(
-                        id=item["symbol"],
+                        token_id=item["symbol"],
                         symbol=item["symbol"].replace("USDT", ""),
                         name=item["symbol"],
                         current_price=float(item["lastPrice"]),
@@ -307,10 +325,11 @@ class BinanceTokensFetcher:
                         market_cap_rank=i + 1
                     )
                     tokens.append(t)
-                except Exception:
+                except Exception:  # pylint: disable=broad-exception-caught
                     continue
 
             if not tokens:
+                # pylint: disable=broad-exception-raised
                 raise Exception("API returned empty data.")
 
             self._last_good_tokens = tokens
@@ -318,33 +337,38 @@ class BinanceTokensFetcher:
 
             return tokens
 
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             if self._last_good_tokens and len(self._last_good_tokens) > 0:
                 print(f"!!! Binance temporary issue, returning cached data. Error: {e}")
                 return self._last_good_tokens
+            # pylint: disable=protected-access
             return MessyWebScraper()._generate_fallback_data()
 
-    def fetch_historical_data(self, symbol: str, interval: str = "1h", limit: int = 24) -> List[Dict]:
+    def fetch_historical_data(self, symbol: str, interval: str = "1h",
+                              limit: int = 24) -> List[Dict]:
         """
         Fetches candlestick (OHLC) data for charting.
         """
         try:
             url = f"{self.base_url}/klines"
-            params = {"symbol": f"{symbol.upper()}USDT", "interval": interval, "limit": limit}
-            r = requests.get(url, params=params, timeout=5).json()
+            params = {"symbol": f"{symbol.upper()}USDT",
+                      "interval": interval, "limit": limit}
+            r_data = requests.get(url, params=params, timeout=5).json()
 
-            if isinstance(r, dict) and "code" in r:
+            if isinstance(r_data, dict) and "code" in r_data:
+                # pylint: disable=broad-exception-raised
                 raise Exception("Symbol Not Found")
 
             formatted = []
-            for item in r:
+            for item in r_data:
                 formatted.append({
                     "x": int(item[0]),
                     "y": [float(item[1]), float(item[2]), float(item[3]), float(item[4])]
                 })
             return formatted
-        except Exception as e:
-            print(f"Historical data unavailable for ({symbol}), using simulation fallback. Error: {e}")
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            print(f"Historical data unavailable for ({symbol}), using simulation fallback. "
+                  f"Error: {e}")
 
             now = int(time.time() * 1000)
             mock_data = []
@@ -377,6 +401,7 @@ class BinanceTokensFetcher:
             return mock_data
 
 class CryptoAnalyzer:
+    """Analyzes crypto data for anomalies and statistics."""
     def detect_anomalies(self, data: List[TokenData]) -> List[TokenData]:
         """Detects anomalies using MathEngine (manual algorithm)."""
         if not data:
@@ -396,35 +421,42 @@ class CryptoAnalyzer:
         return data
 
     def get_advanced_analysis(self, data: List[TokenData]) -> Dict[str, Any]:
+        """Generates advanced statistical report."""
         if not data:
             return {}
         try:
-            df = pd.DataFrame([t.to_dict() for t in data])
+            # pylint: disable=too-many-locals
+            df_frame = pd.DataFrame([t.to_dict() for t in data])
             col = "current_price"
 
-            Q1 = df[col].quantile(0.25)
-            Q3 = df[col].quantile(0.75)
-            IQR = Q3 - Q1
-            outliers = df[(df[col] < (Q1 - 1.5 * IQR)) | (df[col] > (Q3 + 1.5 * IQR))]
+            q1 = df_frame[col].quantile(0.25)
+            q3 = df_frame[col].quantile(0.75)
+            iqr = q3 - q1
+            outliers = df_frame[
+                (df_frame[col] < (q1 - 1.5 * iqr)) |
+                (df_frame[col] > (q3 + 1.5 * iqr))
+            ]
 
-            skewness = df[col].skew()
-            kurtosis = df[col].kurt()
+            skewness = df_frame[col].skew()
+            kurtosis = df_frame[col].kurt()
 
-            prices_for_pred = df[col].head(20).tolist()
+            prices_for_pred = df_frame[col].head(20).tolist()
             predicted_price = PredictionEngine.linear_regression_predict(prices_for_pred)
 
             prediction_data = {
                 "target_coin": data[0].symbol if data else "UNKNOWN",
                 "current": data[0].current_price if data else 0,
                 "predicted_next": round(predicted_price, 2),
-                "trend": "UP" if predicted_price > (data[0].current_price if data else 0) else "DOWN"
+                "trend": "UP" if predicted_price > (data[0].current_price if data else 0)
+                else "DOWN"
             }
 
             sentiment_data = SentimentEngine.analyze_market_sentiment(data)
 
             plt.figure(figsize=(10, 5))
             sns.set_theme(style="darkgrid")
-            sns.boxplot(x=df[col], color="#00d1b2", flierprops={"marker": "x", "markeredgecolor": "red"})
+            sns.boxplot(x=df_frame[col], color="#00d1b2",
+                        flierprops={"marker": "x", "markeredgecolor": "red"})
             plt.title("Price Distribution (Box Plot)")
             plt.tight_layout()
 
@@ -435,22 +467,36 @@ class CryptoAnalyzer:
             plt.close()
 
             plt.figure(figsize=(8, 6))
-            corr_cols = df[["current_price", "price_change_percentage_24h", "market_cap_rank"]]
+            corr_cols = df_frame[["current_price",
+                                  "price_change_percentage_24h",
+                                  "market_cap_rank"]]
 
             corr_df = corr_cols.corr().round(6)
-            corr_matrix = {k: {kk: float(vv) for kk, vv in v.items()} for k, v in corr_df.to_dict().items()}
+            corr_matrix = {k: {kk: float(vv) for kk, vv in v.items()}
+                           for k, v in corr_df.to_dict().items()}
 
             raw_for_frontend = {
-                "current_price": [float(x) for x in df["current_price"].fillna(0).tolist()],
-                "price_change_percentage_24h": [float(x) for x in df["price_change_percentage_24h"].fillna(0).tolist()],
-                "market_cap_rank": [int(x) for x in df["market_cap_rank"].fillna(0).tolist()],
-                "symbols": [str(x) for x in df["symbol"].fillna("").tolist()],
-                "names": [str(x) for x in df["name"].fillna("").tolist()],
-                "is_anomaly": [bool(x) for x in df["is_anomaly"].fillna(False).tolist()],
-                "anomaly_score": [float(x) for x in df["anomaly_score"].fillna(0).tolist()],
+                "current_price":
+                    [float(x) for x in df_frame["current_price"].fillna(0).tolist()],
+                "price_change_percentage_24h":
+                    [float(x) for x in df_frame["price_change_percentage_24h"]
+                     .fillna(0).tolist()],
+                "market_cap_rank":
+                    [int(x) for x in df_frame["market_cap_rank"].fillna(0).tolist()],
+                "symbols":
+                    [str(x) for x in df_frame["symbol"].fillna("").tolist()],
+                "names":
+                    [str(x) for x in df_frame["name"].fillna("").tolist()],
+                "is_anomaly":
+                    [bool(x) for x in df_frame["is_anomaly"].fillna(False).tolist()],
+                "anomaly_score":
+                    [float(x) for x in df_frame["anomaly_score"].fillna(0).tolist()],
             }
 
-            outliers_list = outliers[["symbol", "name", "current_price", "price_change_percentage_24h", "market_cap_rank"]].to_dict(orient="records")
+            outliers_list = outliers[[
+                "symbol", "name", "current_price",
+                "price_change_percentage_24h", "market_cap_rank"
+            ]].to_dict(orient="records")
 
             sns.heatmap(corr_cols.corr(), annot=True, cmap="coolwarm", fmt=".2f")
             plt.title("Correlation Matrix (Scientific Report)")
@@ -464,11 +510,11 @@ class CryptoAnalyzer:
 
             return {
                 "stats": {
-                    "q1": round(Q1, 2),
-                    "q3": round(Q3, 2),
-                    "iqr": round(IQR, 2),
+                    "q1": round(q1, 2),
+                    "q3": round(q3, 2),
+                    "iqr": round(iqr, 2),
                     "outliers_count": len(outliers),
-                    "mean": round(df[col].mean(), 2),
+                    "mean": round(df_frame[col].mean(), 2),
                     "skewness": round(skewness, 2),
                     "kurtosis": round(kurtosis, 2)
                 },
@@ -480,6 +526,6 @@ class CryptoAnalyzer:
                 "raw": raw_for_frontend,
                 "outliers": outliers_list
             }
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             print(f"Analysis error: {e}")
             return {}
