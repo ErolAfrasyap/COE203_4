@@ -43,7 +43,6 @@ This system aggregates market data, detects price anomalies using Z-Score analys
 ...
 ├── api_server.py       # Flask API Entry Point & Routes
 ├── core.py             # Business Logic (Math, Scraper, Analysis Classes)
-├── main.py             # System Initialization & Dependency Check
 ├── frontend_app/       # React Frontend Source Code
 ├── node_modules/       # Frontend Dependencies
 └── README.md           # Documentation
@@ -55,15 +54,16 @@ This system aggregates market data, detects price anomalies using Z-Score analys
 Initialize the Python environment and install dependencies.
 
 pip install flask flask-cors pandas numpy matplotlib seaborn beautifulsoup4 requests pymongo mongoengine
-python api_server.py
-Server runs on: http://localhost:5000
+**run python file api_server.py**
+**Server runs on:** http://localhost:3000
 
 **Frontend Setup:**
 
 Navigate to the frontend directory to start the UI.
 
+**in command prompt:**
 cd frontend_app
-npm install
+npm install axios react-apexcharts apexcharts
 npm start
 
 **API Endpoints:**
