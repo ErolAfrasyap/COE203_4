@@ -1,158 +1,100 @@
-🚀 Crypto Analytics System – Real-Time Binance Tracking & Analysis Application
+# 📈 Crypto Analytics & Prediction Engine
 
-This project is a desktop application that tracks cryptocurrency data from Binance in real time, analyzes market trends, visualizes token price history, and stores all data in MongoDB Atlas for persistent storage.
+A full-stack cryptocurrency analysis platform combining real-time API data, web scraping, and custom statistical algorithms.
 
-The system is built using Tkinter, Matplotlib, Requests, MongoEngine, Pydantic, and Scrapy.
-The project can also be compiled into a Windows executable (.exe) for systems without Python installed.
+This system aggregates market data, detects price anomalies using Z-Score analysis, and visualizes trends via server-side rendered heatmaps and box plots. It features a **Python Flask** backend serving a **React** frontend.
 
-1️⃣ Project Purpose
+## ⚡ Key Features
 
-The goal of this project is to:
+* **Hybrid Data Architecture:**
 
-Track the top N Binance USDT pairs in real time
+    * **Live:** Real-time data fetching from **Binance API**.
 
-Provide users with live price, percentage change, and volume data
+    * **Scraper:** Custom `BeautifulSoup` scraper with Regex cleaning for unstructured data sources (Coinranking).
 
-Generate market analysis reports (top gainers and losers)
+* **Custom Math Engine:** Core statistical functions (Variance, Std Dev, Z-Score, Linear Regression) are manually implemented in `core.py` to demonstrate algorithmic logic without heavy reliance on `sklearn`.
 
-Show detailed views and price charts for selected tokens
+* **Anomaly Detection:** Automated flagging of tokens behaving outside standard deviation thresholds.
 
-Persist token snapshots and historical price records in MongoDB
+* **Server-Side Visualization:** Generates base64-encoded **Seaborn** & **Matplotlib** charts directly from the API.
 
-Perform additional data scraping via Scrapy
+* **Predictive Modeling:** Least Squares Linear Regression implementation for short-term price trend forecasting.
 
-This application demonstrates the fundamental components of a crypto market analytics tool.
+## 🛠️ Tech Stack
 
-2️⃣ Use Cases
-🔹 2.1 — Real-Time Market Tracking
+**Backend**
 
-When the user clicks START STREAM:
+* **Core:** Python 3.x, Flask, Flask-CORS
 
-The system retrieves live market data from Binance
+* **Data Processing:** Pandas, NumPy, Regex
 
-Displays:
+* **Visualization:** Seaborn, Matplotlib (Agg backend)
 
-Price
+* **Data Sources:** Requests, BeautifulSoup4
 
-24h percentage change
+**Frontend**
 
-Session percentage change (since stream start)
+* **Core:** Node.js, React (located in `/frontend_app`)
 
-24h volume
+* **UI:** Interactive dashboard for data consumption.
 
-The table continuously updates during the session.
+## 📂 Project Structure
 
-🔹 2.2 — Market Analysis (Gainers / Losers)
+...
+├── api_server.py       # Flask API Entry Point & Routes
+├── core.py             # Business Logic (Math, Scraper, Analysis Classes)
+├── main.py             # System Initialization & Dependency Check
+├── frontend_app/       # React Frontend Source Code
+├── node_modules/       # Frontend Dependencies
+└── README.md           # Documentation
 
-When the ANALYZE button is pressed, the system generates a report containing:
+## 🚀 Installation & Setup
 
-Top 5 gainers
+**Backend Setup:**
 
-Top 5 losers
+Initialize the Python environment and install dependencies.
 
-Total number of analyzed assets
+pip install flask flask-cors pandas numpy matplotlib seaborn beautifulsoup4 requests pymongo mongoengine
+python api_server.py
+Server runs on: http://localhost:5000
 
-Timestamp of the analysis
+**Frontend Setup:**
 
-This summary is displayed inside the analysis panel.
+Navigate to the frontend directory to start the UI.
 
-🔹 2.3 — Token Detail & Price Chart
+cd frontend_app
+npm install
+npm start
 
-When a token is selected (or double-clicked):
+**API Endpoints:**
 
-A separate window opens showing:
+Method  Endpoint                Description
 
-Token ID, name, price, volume, 24h change, category
+GET     /api/live-data          Fetches live Binance ticker data with anomaly scores.
+GET     /api/scraped-data       returns cleaned data from web scraping module.
+GET     /api/analysis           Generates statistical report (JSON + Base64 Images).
+GET     /api/history/<symbol>   Retrives OHLC historical data (interval support: 15m, 1h, 4h).
 
-A price chart of the last ~30 days
+## 🧠 algorithmic Details
 
-A summary of the last 5 days
+**The MathEngine Class:**
 
-This helps visualize short-term market trends.
+Located in core.py, this class replaces standard library abstractions with raw loop-based implementations for:
 
-🔹 2.4 — MongoDB Atlas Data Storage
+calculate_variance
 
-The application saves all fetched data to MongoDB:
+calculate_z_score
 
-TokenDocument — current token snapshot
+linear_regression_predict
 
-HistoricalDocument — historical price records
+**Data Cleaning Strategy:**
 
-When the program is restarted, previously saved token data is loaded automatically and displayed in the table.
+The MessyWebScraper utilizes a strict Regex pipeline to parse human-readable currency formats (e.g., "$ 3.2 billion") into floating-point precision for analysis.
 
-🔹 2.5 — Scrapy-Based Data Collection
+## ⚖️ Legal Disclaimer
 
-The RUN SCRAPY button:
+**This software is provided for educational and research purposes only.**
 
-Dynamically generates a Scrapy spider (binance_spider.py)
-
-Executes it using:
-
-python -m scrapy runspider binance_spider.py -o binance_data.json
-
-
-Saves the output into binance_data.json inside the project directory
-
-This JSON file can be used for offline analysis or dataset preparation.
-
-3️⃣ Project Structure
-
-The project uses a flat directory layout as required:
-
-.
-├── core.py         # API requests, MongoDB models, data classes, analytics
-├── main.py         # Application entry point (launches Tkinter GUI)
-├── ui.py           # TK interface, tables, charts, Scrapy integration
-├── main.exe        # Compiled Windows executable
-├── test.py         # Test file (optional)
-└── README.md       # Documentation
-
-4️⃣ How to Run the Application
-🔹 4.1 — Running from Source (Python)
-Requirements:
-
-Python 3.10+
-
-Internet connection
-
-MongoDB Atlas account (or local MongoDB)
-
-Install dependencies:
-pip install pymongo mongoengine pydantic requests scrapy dnspython matplotlib
-
-
-If using a virtual environment:
-
-python -m venv venv
-venv\Scripts\activate
-
-Start the application:
-python main.py --limit 50
-
-🔹 4.2 — Running via Executable (Windows)
-
-Launch the program by double-clicking:
-
-main.exe
-
-
-Python installation is not required.
-
-To generate your own executable:
-
-pyinstaller --onefile --noconsole main.py
-
-
-The executable will be located in:
-
-/dist/main.exe
-
-5️⃣ Known Issues & Limitations
-Issue	Description
-Binance API rate limits	Excessive request frequency may cause temporary throttling.
-Network / DB failures	Internet or MongoDB outages produce read/write errors.
-Scrapy dependency	Scrapy must be installed for JSON export to work.
-MongoDB URI inside code	For demonstration only; production requires environment variables.
-Missing historical data	When API history is unavailable, a flat synthetic dataset is shown.
-
-Despite these limitations, the system operates reliably for demonstration and coursework purposes.
+* **No Financial Advice:** Nothing in this repository constitutes financial, investment, or trading advice.
+* **No Warranty:** The system is provided "as is", without warranty of any kind, express or implied.
+* **Risk Warning:** Cryptocurrency markets are highly volatile. The developers assume no responsibility for any financial losses or damages incurred through the use of this software.
