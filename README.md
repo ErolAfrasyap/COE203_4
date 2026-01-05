@@ -1,5 +1,7 @@
 # 📈 Crypto Analytics & Prediction Engine
 
+**Crypto Analytics System:**
+
 A full-stack cryptocurrency analysis platform combining real-time API data, web scraping, and custom statistical algorithms.
 
 This system aggregates market data, detects price anomalies using Z-Score analysis, and visualizes trends via server-side rendered heatmaps and box plots. It features a **Python Flask** backend serving a **React** frontend.
@@ -54,14 +56,14 @@ This system aggregates market data, detects price anomalies using Z-Score analys
 Initialize the Python environment and install dependencies.
 
 pip install flask flask-cors pandas numpy matplotlib seaborn beautifulsoup4 requests pymongo mongoengine
-**run python file api_server.py**
-**Server runs on:** http://localhost:3000
+**run the python file named:** api_server.py
+**server runs on:** http://localhost:3000
 
 **Frontend Setup:**
 
 Navigate to the frontend directory to start the UI.
 
-**in command prompt:**
+**inside command prompt:**
 cd frontend_app
 npm install axios react-apexcharts apexcharts
 npm start
@@ -96,5 +98,7 @@ The MessyWebScraper utilizes a strict Regex pipeline to parse human-readable cur
 **This software is provided for educational and research purposes only.**
 
 * **No Financial Advice:** Nothing in this repository constitutes financial, investment, or trading advice.
+
 * **No Warranty:** The system is provided "as is", without warranty of any kind, express or implied.
+
 * **Risk Warning:** Cryptocurrency markets are highly volatile. The developers assume no responsibility for any financial losses or damages incurred through the use of this software.
