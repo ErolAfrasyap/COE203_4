@@ -7,7 +7,7 @@ app = Flask(__name__)
 # CORS: Tüm kaynaklara izin ver (Tarayıcı engellemelerini önler)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# LİMİTİ 50 OLARAK AYARLIYORUZ (Senin İsteğin)
+# LİMİTİ 50 OLARAK AYARLIYORUZ
 api_fetcher = BinanceTokensFetcher(limit=50) 
 scraper = MessyWebScraper()
 analyzer = CryptoAnalyzer()

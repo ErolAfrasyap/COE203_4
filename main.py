@@ -23,16 +23,16 @@ REQUIRED_PACKAGES = [
     "pydantic",
     "mongoengine",
     "requests",
-    "bs4",          # BeautifulSoup (Scraping için +10 Puan)
-    "pandas",       # Data Science (+15 Puan)
-    "seaborn",      # Visualization (+5 Puan)
+    "bs4",         
+    "pandas",       
+    "seaborn",      
     "matplotlib"
 ]
 
 print(">>> SYSTEM CHECK: Verifying installed packages...")
 for package in REQUIRED_PACKAGES:
     try:
-        # bs4 import edilirken ismi farklıdır
+        
         if package == "bs4":
             __import__("bs4")
         else:
@@ -59,5 +59,5 @@ if __name__ == "__main__":
     print(f">>> Initializing GUI with limit={args.limit}...")
 
     root = tk.Tk()
-    # Uygulamayı başlat
+    
     root.mainloop()
