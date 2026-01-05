@@ -68,14 +68,14 @@ npm start
 
 **API Endpoints:**
 
-Method  Endpoint                Description
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/api/live-data` | Fetches live Binance ticker data with anomaly scores. |
+| `GET` | `/api/scraped-data` | Returns cleaned data from web scraping module. |
+| `GET` | `/api/analysis` | Generates statistical report (JSON + Base64 Images). |
+| `GET` | `/api/history/<symbol>` | Retrieves OHLC historical data (interval support: 15m, 1h, 4h). |
 
-GET     /api/live-data          Fetches live Binance ticker data with anomaly scores.
-GET     /api/scraped-data       returns cleaned data from web scraping module.
-GET     /api/analysis           Generates statistical report (JSON + Base64 Images).
-GET     /api/history/<symbol>   Retrives OHLC historical data (interval support: 15m, 1h, 4h).
-
-## 🧠 algorithmic Details
+## 🧠 Algorithmic Details
 
 **The MathEngine Class:**
 
